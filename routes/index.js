@@ -1,46 +1,23 @@
+'use strict'
 var express = require('express'),
-    { checkSchema, validationResult } = require("express-validator"),
-    { error } = require("../helpers/error"),
+    http = require('http'),
     config = require('config'),
-    mathService = require("../services/math");
+    scrapDbResolver = require('../db/scrap'),
+    scrapService = require("../services/scrap");
 
 var app = express();
 
-app.get('/', checkSchema({
-    // id: {
-    //     in: ['body'],
-    //     errorMessage: 'ID is wrong',
-    //     isInt: true,
-    //     // Sanitizers can go here as well
-    //     toInt: true
-    // }
-}), function (req, res) {
-    try {
-        validationResult(req).throw();
-        res.send('Hello Sir');
-    } catch (e) {
-        return res.status(500).send(e);
-    }
-});
+//Only 5 sockets are allowed at a time
+http.globalAgent.maxSockets = 5;
 
-app.get('/add', function (req, res) {
+app.get('/', async function (req, res, next) {
     try {
-        return res.status((config.get('httpStatusCode.oK') && parseInt(config.get('httpStatusCode.oK')) || parseInt(config.get('httpStatusCode.oK'))))
-            .send({ result: mathService.add(10, 11) });
+        let scrappedData = await scrapService.startScrap({ url: config.get(`websites.medium.url`) });
+        let dbResponse = await scrapDbResolver.insertScrappedData({ data: scrappedData, con: process.connection });
+        return res.status(config.get('httpStatusCode.oK') && parseInt(config.get('httpStatusCode.oK')))
+            .send({ scrappedData, dbResponse });
     } catch (e) {
-        return res.status(500).send(e);
-    }
-});
-
-app.post('/hello', function (req, res) {
-    try {
-        process.connection.query('INSERT INTO table1 SET ?', { name: 'Craig Buckler', city: 'Bangalore' }, (err, result) => {
-            if (err) new error();
-            console.log('Last insert ID:', result.insertId);
-            res.status(config.get('httpStatusCode.created')).send({ result })
-        });
-    } catch (e) {
-        return res.status(500).send(e);
+        return res.status(config.get('httpStatusCode.internalServerError')).send(e);
     }
 });
 

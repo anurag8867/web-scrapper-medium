@@ -1,4 +1,9 @@
 {
+    "websites": {
+        "medium": {
+            "url": "https://medium.com/"
+        }
+    },
     "port": 3008,
     "mysql": {
         "host": "localhost",
@@ -7,7 +12,7 @@
         "database": "test"
     },
     "tables": {
-        "1": "CREATE TABLE if not exists table1 (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), city VARCHAR(255), created_at datetime DEFAULT CURRENT_TIMESTAMP,  updated_at datetime DEFAULT CURRENT_TIMESTAMP,  deleted_at datetime DEFAULT NULL)"
+        "1": "CREATE TABLE if not exists scrap_url (id INT AUTO_INCREMENT PRIMARY KEY,uuid CHAR(36) NOT NULL, url VARCHAR(255) NOT NULL, ref_count INT NOT NULL, params varchar(255), created_at datetime DEFAULT CURRENT_TIMESTAMP,  updated_at datetime DEFAULT CURRENT_TIMESTAMP,  deleted_at datetime DEFAULT NULL)"
     },
     "httpStatusCode": {
         "continue": "100",

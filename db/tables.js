@@ -1,10 +1,6 @@
 const async = require("async"),
     config = require("config"),
     dbConnection = require('./connect');
-// if (!con) throw {
-//     msg: "db connection not created",
-//     status: config.get("httpStatusCode.serviceUnavailable")
-// }
 
 async function createConnection() {
     let connection = await dbConnection.createConnection();
